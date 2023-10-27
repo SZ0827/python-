@@ -1,0 +1,261 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>show fangji atlas</title>
+    <style type="text/css">
+  .button{
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 10px;
+  transition: all 0.5s ease;
+}
+
+.button:hover {
+  transform: scale(1.5);
+}
+
+.button.open {
+  width: 150px;
+  height: auto;
+  border-radius: 5px;
+  padding: 10px;
+  line-height: 1.5em;
+}
+.button0{
+  background-color: #0066FF;
+}
+.button0:hover {
+  transform: scale(1.5);
+}
+
+#button0 {
+  background-color: red;
+}
+
+#button1 {
+  background-color: green;
+}
+
+#button2 {
+  background-color: purple;
+}
+
+#button3 {
+  background-color: yellow;
+}
+
+#button4 {
+  background-color: orange;
+}
+
+        html, body {
+            font: 16pt arial;
+        }
+        #text
+        {
+            width: 1600px;
+            height: 70px;
+            border: 1px solid lightgray;
+            font: 10pt arial;
+        }
+
+        #viz {
+            width: 1600px;
+            height: 600px;
+            border: 1px solid lightgray;
+            font: 22pt arial;
+        }
+
+
+    </style>
+
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+
+    <script type="text/javascript" src="../staitic/neovis.js"></script>
+
+
+
+
+    <script type="text/javascript">
+
+
+		var viz;
+
+		function draw() {
+			var config = {
+				container_id: "viz",
+				server_url: "neo4j://localhost:7687",
+				server_user: "neo4j",
+				server_password: "j20010201",
+				labels: {
+					"fangji": {
+						"caption": "name",
+						"font": {
+                            "size":26,
+                            "color":"green"
+                                                 },
+					},
+					"function": {
+						"caption": "name",
+						"font": {
+                            "size":26,
+                            "color":"Brown"
+                                                 },
+					},
+					"user": {
+						"caption": "name",
+						"font": {
+                            "size":26,
+                            "color":"blue"
+                                                 },
+					},
+					"catagory": {
+						"caption": "name",
+						"font": {
+                            "size":26,
+                            "color":"pink"
+                                                 },
+					},
+					"origin": {
+						"caption": "name",
+						"font": {
+                            "size":26,
+                            "color":"red"
+                                                 },
+					},
+					 "element": {
+						"caption": "name",
+						"font": {
+                            "size":36,
+                            "color":"black"},
+                        "community": "community"
+                                                 },
+				},
+				relationships: {
+					"fangji_element": {
+						"thickness": "1",
+						"caption": false
+					},
+					"fangji_function": {
+						"thickness": "1",
+						"caption": false
+					},
+					"fangji_use": {
+						"thickness": "1",
+						"caption": false
+					},
+					"fangji_origin": {
+						"thickness": "1",
+						"caption": false
+					},
+					"fangji_catagory": {
+						"thickness": "1",
+						"caption": false
+					},
+				},
+
+				arrows: false,
+				hierarchical: false,
+				initial_cypher: "MATCH p=()-[r:fangji_element]->() RETURN p LIMIT 100"
+
+			};
+
+			viz = new NeoVis.default(config);
+			viz.render();
+			console.log(viz);
+
+		}
+    </script>
+</head>
+<body onload="draw()">
+<div id="viz"></div>
+<div id="text" style="color:green"><input type="submit" value="方剂—用法" id="button0" class="button" onclick="toggleButton('button0')" style="font-family: Arial, sans-serif;font-size: 10px;">
+                                   <input type="submit" value="方剂—分类" id="button1" class="button" onclick="toggleButton('button1')" style="font-family: Arial, sans-serif; font-size: 10px;">
+                                   <input type="submit" value="方剂—成分" id="button2" class="button" onclick="toggleButton('button2')" style="font-family: Arial, sans-serif; font-size: 10px;">
+                                   <input type="submit" value="方剂—功效" id="button3" class="button" onclick="toggleButton('button3')" style="font-family: Arial, sans-serif; font-size: 10px;">
+                                   <input type="submit" value="方剂—出处" id="button4" class="button" onclick="toggleButton('button4')" style="font-family: Arial, sans-serif;  font-size: 10px;">
+</div>
+
+Cypher query:<textarea rows="2" cols=50 id="cypher" style="font-size: 16px; color:blue ;">MATCH p=()-[r:]->() RETURN p LIMIT  </textarea><br>
+<input type="submit" value="查询" id="reload" class="button0">
+<input type="submit" value="稳定" id="stabilize" class="button0">
+</body>
+<script>
+function toggleButton(buttonId) {
+  var button = document.getElementById(buttonId);
+
+  for (var i = 0; i < 5; i++) {
+    var currentButton = document.getElementById('button' + i);
+    if (currentButton.id != buttonId) {
+      currentButton.classList.remove('open');
+    }
+  }
+
+  button.classList.toggle('open');
+}
+
+$("#reload").click(function() {
+    var cypher =$("#cypher").val();
+
+    if (cypher.length > 3) {
+        viz.renderWithCypher(cypher);
+    } else {
+        console.log("reload");
+        viz.reload(function() {
+            // 更新可视化
+            viz.updateData({ nodes: nodes });
+        });
+    }
+});
+
+$("#stabilize").click(function() {
+    viz.stabilize();
+});
+
+$("#button0").click(function() {
+    var cypher = "MATCH p=()-[r:fangji_use]->() RETURN p LIMIT 200";
+
+    executeCypher(cypher);
+});
+
+$("#button1").click(function() {
+    var cypher = "MATCH p=()-[r:fangji_catagory]->() RETURN p LIMIT 300";
+
+    executeCypher(cypher);
+});
+
+$("#button2").click(function() {
+    var cypher = "MATCH p=()-[r:fangji_element]->() RETURN p LIMIT 300";
+
+    executeCypher(cypher);
+});
+
+$("#button3").click(function() {
+    var cypher = "MATCH p=()-[r:fangji_function]->() RETURN p LIMIT 200";
+
+    executeCypher(cypher);
+});
+
+$("#button4").click(function() {
+    var cypher = "MATCH p=()-[r:fangji_origin]->() RETURN p LIMIT 300";
+
+    executeCypher(cypher);
+});
+
+function executeCypher(cypher) {
+    if (cypher.length > 3) {
+        viz.renderWithCypher(cypher);
+    } else {
+        console.log("reload");
+        viz.reload(function() {
+            // 更新可视化
+            viz.updateData({ nodes: nodes });
+        });
+    }
+}
+</script>
+</html>
